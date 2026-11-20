@@ -1,4 +1,4 @@
-"""Website mode: only reels-editor.thebooleanjulian.dev may pair with the studio and read its responses; the build
+"""Website mode: only rhenium.accurova.com may pair with the studio and read its responses; the build
 publishes the page and fonts and nothing else."""
 import http.client, json, os, sys, threading
 import pytest
@@ -9,7 +9,7 @@ import studio  # noqa: E402
 sys.path.insert(0, os.path.join(ROOT, 'web'))
 import build  # noqa: E402
 
-WEB = 'https://reels-editor.thebooleanjulian.dev'
+WEB = 'https://rhenium.accurova.com'
 
 
 @pytest.fixture(scope='module')
@@ -30,13 +30,13 @@ def call(port, path, method='GET', headers=None, body=None):
 def test_website_pairs_and_gets_the_token(port):
     code, hd, data = call(port, '/api/pair', headers={'Origin': WEB})
     j = json.loads(data)
-    assert code == 200 and j['app'] == 'tbj-reels' and j['token'] == studio.TOKEN and j['version'] == studio.API_VERSION
+    assert code == 200 and j['app'] == 'accurova-rhenium' and j['token'] == studio.TOKEN and j['version'] == studio.API_VERSION
     assert isinstance(j['device'], str)
     assert hd['Access-Control-Allow-Origin'] == WEB
 
 
-@pytest.mark.parametrize('origin', [None, 'https://evil.example', 'https://reels-editor.thebooleanjulian.dev.evil.example',
-                                    'http://reels-editor.thebooleanjulian.dev'])
+@pytest.mark.parametrize('origin', [None, 'https://evil.example', 'https://rhenium.accurova.com.evil.example',
+                                    'http://rhenium.accurova.com'])
 def test_other_sites_cannot_pair(port, origin):
     code, hd, data = call(port, '/api/pair', headers={'Origin': origin} if origin else {})
     assert code == 403 and studio.TOKEN.encode() not in data
@@ -59,7 +59,7 @@ def test_api_still_needs_the_token_from_the_website(port):
 
 
 def test_host_check_still_blocks_rebinding(port):
-    assert call(port, '/api/pair', headers={'Origin': WEB, 'Host': 'reels-editor.thebooleanjulian.dev'})[0] == 403
+    assert call(port, '/api/pair', headers={'Origin': WEB, 'Host': 'rhenium.accurova.com'})[0] == 403
 
 
 def test_build_publishes_page_and_fonts_only(tmp_path, monkeypatch):

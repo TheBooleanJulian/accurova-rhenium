@@ -1,4 +1,4 @@
-# TBJ-reels (project instructions)
+# Accurova Rhenium (project instructions)
 
 Python + Pillow + ffmpeg pipeline for Julian's Instagram reels (@accurova). Own footage and photos only; text and animated
 graphics are drawn in code. No AI-generated images or video.

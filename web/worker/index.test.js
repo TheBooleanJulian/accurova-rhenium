@@ -3,10 +3,10 @@ import { test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 import worker from './index.js';
 
-const ORIGIN = 'https://reels-editor.thebooleanjulian.dev';
+const ORIGIN = 'https://rhenium.accurova.com';
 const b64url = (s) => Buffer.from(s).toString('base64url');
 
-// In-memory stand-in for thebooleanjulian_reels.projects, answering the Worker's few queries by their text.
+// In-memory stand-in for accurova_rhenium.projects, answering the Worker's few queries by their text.
 let rows;
 function fakeSql(strings, ...v) {
   const q = strings.join('?').replace(/\s+/g, ' ').trim();
@@ -45,8 +45,8 @@ async function signIn(sub = '1001', email = 'julian@example.com') {
     return new Response(JSON.stringify({ id_token: `h.${b64url(JSON.stringify(claims))}.s`, access_token: 'x' }));
   };
   try {
-    const back = await call(`/auth/callback?code=abc&state=${state}`, { headers: { Cookie: cookieOf(start, 'tbj_reels_state') } });
-    return { back, cookie: cookieOf(back, 'tbj_reels') };
+    const back = await call(`/auth/callback?code=abc&state=${state}`, { headers: { Cookie: cookieOf(start, 'rhenium_state') } });
+    return { back, cookie: cookieOf(back, 'rhenium') };
   } finally {
     globalThis.fetch = realFetch;
   }
@@ -59,21 +59,21 @@ test('sign-in round trip: identity scopes only, returns to the page, session coo
   assert.equal(google.searchParams.get('scope'), 'openid email profile');
   const { back, cookie } = await signIn();
   assert.equal(back.headers.get('Location'), ORIGIN + '/#interview/talk');
-  assert.match(back.headers.getSetCookie().join('\n'), /tbj_reels=.*HttpOnly; Secure; SameSite=Lax/);
+  assert.match(back.headers.getSetCookie().join('\n'), /rhenium=.*HttpOnly; Secure; SameSite=Lax/);
   const me = await (await call('/auth/me', { headers: { Cookie: cookie } })).json();
   assert.deepEqual(me, { configured: true, user: { email: 'julian@example.com', name: 'Julian' } });
 });
 
 test('callback refuses a wrong state or a token for another app', async () => {
   const start = await call('/auth/login');
-  const bad = await call('/auth/callback?code=abc&state=nope', { headers: { Cookie: cookieOf(start, 'tbj_reels_state') } });
+  const bad = await call('/auth/callback?code=abc&state=nope', { headers: { Cookie: cookieOf(start, 'rhenium_state') } });
   assert.match(bad.headers.get('Location'), /signin=failed/);
-  assert.equal(bad.headers.getSetCookie().some((c) => c.startsWith('tbj_reels=') && !c.startsWith('tbj_reels=;')), false);
+  assert.equal(bad.headers.getSetCookie().some((c) => c.startsWith('rhenium=') && !c.startsWith('rhenium=;')), false);
   const realFetch = globalThis.fetch;
   globalThis.fetch = async () => new Response(JSON.stringify({ id_token: `h.${b64url(JSON.stringify({ iss: 'https://accounts.google.com', aud: 'other', sub: '1' }))}.s` }));
   try {
     const state = new URL(start.headers.get('Location')).searchParams.get('state');
-    const res = await call(`/auth/callback?code=abc&state=${state}`, { headers: { Cookie: cookieOf(start, 'tbj_reels_state') } });
+    const res = await call(`/auth/callback?code=abc&state=${state}`, { headers: { Cookie: cookieOf(start, 'rhenium_state') } });
     assert.match(res.headers.get('Location'), /signin=failed/);
   } finally { globalThis.fetch = realFetch; }
 });
@@ -89,7 +89,7 @@ test('not configured: page still served, sign-in hidden, cloud routes 503', asyn
 
 test('projects need a session; a forged cookie is signed out', async () => {
   assert.equal((await call('/cloud/projects')).status, 401);
-  assert.equal((await call('/cloud/projects', { headers: { Cookie: 'tbj_reels=AAAA' } })).status, 401);
+  assert.equal((await call('/cloud/projects', { headers: { Cookie: 'rhenium=AAAA' } })).status, 401);
 });
 
 test('save, list, fetch, conflict, force, delete; accounts are separate', async () => {

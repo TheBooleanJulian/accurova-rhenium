@@ -1,8 +1,8 @@
 @echo off
-REM TBJ Reels Studio: double-click to open the editor (reels-editor.thebooleanjulian.dev) in your browser.
+REM Accurova Rhenium: double-click to open the editor (rhenium.accurova.com) in your browser.
 REM The editing runs here, on this device; close this window to stop it. Offline: studio.bat --local
 REM First time on a laptop: double-click polaroid-reel\setup.bat (installs Python + packages).
-title TBJ Reels Studio
+title Accurova Rhenium
 set "PY=python"
 if exist "%USERPROFILE%\.polaroid-reel\venv\Scripts\python.exe" set "PY=%USERPROFILE%\.polaroid-reel\venv\Scripts\python.exe"
 "%PY%" "%~dp0studio.py" %*

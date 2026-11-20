@@ -1,15 +1,17 @@
-# TBJ-reels
+# Accurova Rhenium
 
 Preset-driven pipeline for Instagram reels (1080x1920, 30 fps): your own photos and footage plus
 code-drawn text, rings, leader lines, zooms and speed ramps. No AI-generated imagery.
 Also: polaroid event recaps (`polaroid-reel/`) and full edits of **short interviews** and **medium-length
-presentations** (`longform.py`), all driven from one local UI, **TBJ Reels Studio**.
+presentations** (`longform.py`), all driven from one local UI, **Accurova Rhenium Studio**.
+Formerly TBJ-reels / thebooleanjulian-reels (renamed 2026-11-20; the old GitHub URL redirects, and `~/.tbj-reels/cache` is still
+read if `~/.accurova-rhenium` does not exist yet).
 Brand look: black / cyan / magenta; Orbitron + Exo 2 + Share Tech Mono for the reel HUD, Chakra Petch +
 IBM Plex Sans for interviews/presentations, JetBrains Mono in the studio UI (all SIL OFL, bundled in `fonts/`).
 
-## TBJ Reels Studio (the UI)
+## Accurova Rhenium Studio (the UI)
 **Double-click `studio.bat`** (first time on a laptop: `polaroid-reel\setup.bat`). It opens the editor at
-**https://reels-editor.thebooleanjulian.dev** in the browser. Same thing by hand: `python studio.py`.
+**https://rhenium.accurova.com** in the browser. Same thing by hand: `python studio.py`.
 
 The website is only the interface. It connects to the studio running on the device it is open on, so footage,
 renders and transcription stay on that device, at that device's speed: PC on the PC, laptop on the laptop. Keep the
@@ -52,7 +54,7 @@ which version to keep. (Needs the one-time setup in `web/worker/index.js`'s head
   them, switch **Slides / Speaker**, **Fix word** (double-click).
 - Keys: Space play, Left/Right one frame (Shift: one second), S split, T add text, Delete, Ctrl+Z undo.
 - Every change saves to `preset.json` at once. Long or browser-unfriendly recordings (HEVC, ProRes): **Make preview
-  proxy** on the Export tab (540p copy in `~/.tbj-reels/cache/`).
+  proxy** on the Export tab (540p copy in `~/.accurova-rhenium/cache/`).
 
 ### Export tab
 Presets (Instagram/TikTok reel, YouTube 1080p / 4K, LinkedIn, venue/projector, small preview, H.265 archive master) or
@@ -101,7 +103,7 @@ parallel and **cached**, so a re-export after a text change reuses every unchang
 `xfade` for transitions); then one pass adds b-roll, graphics, captions and text (libass), the end card, music and
 loudness, and encodes with the export settings. A 20 s 1080x1920 edit exports in ~10 s, ~5 s when the clips are cached.
 Cuts snap to whole frames, so the separately sliced audio (crossfaded at transitions) stays sample-exact. Big temporary
-files (clips, audio, proxies) go to `~/.tbj-reels/cache/`, not the Drive folder. Design notes and what is deliberately
+files (clips, audio, proxies) go to `~/.accurova-rhenium/cache/`, not the Drive folder. Design notes and what is deliberately
 left out: `docs/longform.md`.
 
 ## What's in v3
@@ -150,8 +152,8 @@ Each scene's `still: {t, bg}` picks the preview moment and (optionally) a saved 
 ## Files
 | file | role |
 |---|---|
-| `studio.py`, `studio/index.html`, `studio.bat` | TBJ Reels Studio: local UI server (stdlib) and its single-file page |
-| `web/build.py`, `wrangler.jsonc` | The same page published at reels-editor.thebooleanjulian.dev (the editing stays on each device) |
+| `studio.py`, `studio/index.html`, `studio.bat` | Accurova Rhenium: local UI server (stdlib) and its single-file page |
+| `web/build.py`, `wrangler.jsonc` | The same page published at rhenium.accurova.com (the editing stays on each device) |
 | `web/worker/` | That site's Worker: Google sign-in and projects kept in your account (`node --test` there) |
 | `longform.py` | interview / presentation engine: edit plan, per-clip render, transitions, overlays, export, stills, proxy |
 | `edl.py` | the edit decision list: ordered clips, transitions, source <-> edit time (mirrored in the studio preview) |
