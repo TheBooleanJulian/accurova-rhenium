@@ -1,4 +1,4 @@
-"""Check that this machine can run TBJ-reels. Writes setup/last_check.txt."""
+"""Check that this machine can run Accurova Rhenium. Writes setup/last_check.txt."""
 import importlib, os, shutil, subprocess, sys, json
 ROOT = os.path.dirname(os.path.abspath(__file__))
 rows = []

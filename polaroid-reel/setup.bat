@@ -58,12 +58,12 @@ echo Installing packages (numpy, opencv, pillow, ffmpeg, iPhone HEIC support)...
 if errorlevel 1 goto failed
 "%VPY%" -c "import cv2, numpy, PIL, pillow_heif, imageio_ffmpeg; imageio_ffmpeg.get_ffmpeg_exe()"
 if errorlevel 1 goto failed
-REM The rest of TBJ-reels (studio.bat, reel presets, interviews, presentations) shares this environment.
+REM The rest of Accurova Rhenium (studio.bat, reel presets, interviews, presentations) shares this environment.
 echo Installing the reel, interview and transcription packages (scipy, faster-whisper)...
 "%VPY%" -m pip install --disable-pip-version-check -r "%~dp0..\requirements.txt"
 if errorlevel 1 goto failed
 echo.
-echo All set. Double-click studio.bat (one folder up) to open TBJ Reels Studio,
+echo All set. Double-click studio.bat (one folder up) to open Accurova Rhenium,
 echo or drag a photo folder onto make_reel.bat (template 1) or make_reel_2.bat (template 2).
 pause
 exit /b 0

@@ -1,4 +1,4 @@
-// reels-editor.thebooleanjulian.dev: the studio page (static assets, web/dist) plus Google sign-in and the project
+// rhenium.accurova.com: the studio page (static assets, web/dist) plus Google sign-in and the project
 // copies kept in your account, so the same projects show up on every device you sign in on.
 //
 //   GET  /auth/login?next=<#hash>   to Google (identity only: openid email profile; no Google tokens are kept)
@@ -15,12 +15,12 @@
 // renders and the editing itself stay on each device, in studio.py. Bundles are stored as text and never parsed here,
 // so a 40-minute transcript costs no CPU.
 //
-// Data: schema thebooleanjulian_reels (thebooleanjulian-db) via the HYPERDRIVE binding. Secrets: GOOGLE_CLIENT_ID,
+// Data: schema accurova_rhenium (thebooleanjulian-db) via the HYPERDRIVE binding. Secrets: GOOGLE_CLIENT_ID,
 // GOOGLE_CLIENT_SECRET, SESSION_SECRET. Without them, /auth/me says configured:false and the page hides sign-in.
 import { withDb } from 'thebooleanjulian-bot-core/db';
 
-const COOKIE = 'tbj_reels';
-const STATE_COOKIE = 'tbj_reels_state';
+const COOKIE = 'rhenium';
+const STATE_COOKIE = 'rhenium_state';
 const MAX_AGE = 30 * 24 * 3600;
 const MAX_BUNDLE = 4 * 1024 * 1024;
 const NAME_RE = /^[A-Za-z0-9][A-Za-z0-9._-]{0,79}$/;
@@ -135,21 +135,21 @@ async function projects(request, env, ctx, user, name) {
   if (name === null) {
     if (request.method !== 'GET') throw new HttpError(405, 'Method not allowed');
     const rows = await withDb(env, ctx, (sql) => sql`
-      select name, kind, size, updated_at, device from thebooleanjulian_reels.projects where user_sub = ${user.sub} order by updated_at desc`);
+      select name, kind, size, updated_at, device from accurova_rhenium.projects where user_sub = ${user.sub} order by updated_at desc`);
     return json({ projects: rows.map((r) => ({ ...r, updated_at: new Date(r.updated_at).toISOString() })) });
   }
   if (!NAME_RE.test(name)) throw new HttpError(400, 'Bad project name');
 
   if (request.method === 'GET') {
     const rows = await withDb(env, ctx, (sql) => sql`
-      select bundle, updated_at from thebooleanjulian_reels.projects where user_sub = ${user.sub} and name = ${name}`);
+      select bundle, updated_at from accurova_rhenium.projects where user_sub = ${user.sub} and name = ${name}`);
     if (!rows.length) throw new HttpError(404, 'Not in your account');
     return new Response(rows[0].bundle, { headers: { 'Content-Type': 'application/json; charset=utf-8', 'Cache-Control': 'no-store',
       'X-Updated-At': new Date(rows[0].updated_at).toISOString() } });
   }
 
   if (request.method === 'DELETE') {
-    await withDb(env, ctx, (sql) => sql`delete from thebooleanjulian_reels.projects where user_sub = ${user.sub} and name = ${name}`);
+    await withDb(env, ctx, (sql) => sql`delete from accurova_rhenium.projects where user_sub = ${user.sub} and name = ${name}`);
     return json({ ok: true });
   }
 
@@ -164,14 +164,14 @@ async function projects(request, env, ctx, user, name) {
     if (size > MAX_BUNDLE) throw new HttpError(413, 'Project too large to keep in your account (over 4 MB)');
     if (!bundle.startsWith('{')) throw new HttpError(400, 'Bundle must be JSON');
     return withDb(env, ctx, async (sql) => {
-      const [cur] = await sql`select updated_at from thebooleanjulian_reels.projects where user_sub = ${user.sub} and name = ${name}`;
+      const [cur] = await sql`select updated_at from accurova_rhenium.projects where user_sub = ${user.sub} and name = ${name}`;
       const curAt = cur ? new Date(cur.updated_at).toISOString() : '';
       if (cur && base !== 'force' && base !== curAt) {
         throw Object.assign(new HttpError(409, 'Changed on another device since this one last synced'), { updated_at: curAt });
       }
       if (!cur && base && base !== 'force') throw Object.assign(new HttpError(409, 'Removed from your account on another device'), { updated_at: '' });
       const [row] = await sql`
-        insert into thebooleanjulian_reels.projects (user_sub, name, kind, bundle, size, device, updated_at)
+        insert into accurova_rhenium.projects (user_sub, name, kind, bundle, size, device, updated_at)
         values (${user.sub}, ${name}, ${kind}, ${bundle}, ${size}, ${device}, now())
         on conflict (user_sub, name) do update
           set kind = excluded.kind, bundle = excluded.bundle, size = excluded.size, device = excluded.device, updated_at = now()

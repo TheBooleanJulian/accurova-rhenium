@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>TBJ Reels Studio</title>
+<title>Accurova Rhenium</title>
 <script>
   /* theme before first paint: remembered choice, else the OS preference (tokens follow prefers-color-scheme) */
-  try { const t = localStorage.getItem('tbj-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {}
+  try { const t = localStorage.getItem('rhenium-theme'); if (t === 'dark' || t === 'light') document.documentElement.dataset.theme = t; } catch (e) {}
 </script>
 <style>
 /* ---------- fonts (bundled, SIL OFL; served from ../fonts) ---------- */
@@ -301,7 +301,7 @@ dialog::backdrop { background: var(--scrim); }
 <body>
 <div class="shell">
   <header class="shell__title">
-    <div class="shell__brand"><span class="shell__mark" aria-hidden="true"></span><span>TBJ Reels Studio</span></div>
+    <div class="shell__brand"><span class="shell__mark" aria-hidden="true"></span><span>Accurova Rhenium</span></div>
     <div class="row" style="gap:8px"><span id="account"></span><button class="btn btn--ghost btn--sm" id="theme" type="button" title="Switch theme">Light</button></div>
   </header>
   <nav class="shell__side" id="nav" aria-label="Sections"></nav>
@@ -318,7 +318,7 @@ dialog::backdrop { background: var(--scrim); }
 <script>
 'use strict';
 /* Two ways to open this page. Served by studio.py on this device: the token is written in at load, the API is this
-   origin. Served by the website (reels-editor.thebooleanjulian.dev): the page is only the interface; it finds
+   origin. Served by the website (rhenium.accurova.com): the page is only the interface; it finds
    studio.py running on the device it is open on (127.0.0.1) and pairs with it, so files and processing stay local. */
 const BAKED_TOKEN = '__TOKEN__';
 const HOSTED = !['127.0.0.1', 'localhost'].includes(location.hostname);
@@ -364,8 +364,8 @@ function icon(name, size = 16) {
   return s;
 }
 const store = {
-  get(k, d) { try { const v = localStorage.getItem('tbj-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
-  set(k, v) { try { localStorage.setItem('tbj-' + k, JSON.stringify(v)); } catch (e) {} },
+  get(k, d) { try { const v = localStorage.getItem('rhenium-' + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem('rhenium-' + k, JSON.stringify(v)); } catch (e) {} },
 };
 async function api(path, body, again = HOSTED) {
   let r;
@@ -386,7 +386,7 @@ const media = p => `${BASE}/media?t=${encodeURIComponent(TOKEN)}&p=${encodeURICo
 /* website only: find studio.py on this device (it takes the first free port from 8765) */
 async function findHelper() {
   const ask = p => fetch(`http://127.0.0.1:${p}/api/pair`, { cache: 'no-store' })
-    .then(r => r.ok ? r.json() : null).then(j => j && j.app === 'tbj-reels' ? { ...j, port: p } : null).catch(() => null);
+    .then(r => r.ok ? r.json() : null).then(j => j && (j.app === 'accurova-rhenium' || j.app === 'tbj-reels') ? { ...j, port: p } : null).catch(() => null);
   const last = store.get('helper-port', 8765);
   const hit = await ask(last);
   if (hit) return hit;
@@ -401,9 +401,9 @@ async function pairHelper() {
 }
 function viewConnect(tries) {
   const steps = h('ol', { class: 'body-sm', style: 'margin:0;padding-left:1.2em;display:grid;gap:6px' },
-    h('li', {}, 'Open the studio on this device: double-click ', h('span', { class: 'mono' }, 'studio.bat'), ' in the thebooleanjulian-reels folder, and keep its window open.'),
+    h('li', {}, 'Open the studio on this device: double-click ', h('span', { class: 'mono' }, 'studio.bat'), ' in the accurova-rhenium folder, and keep its window open.'),
     h('li', {}, 'If your browser asks to let this site use apps or devices on your network, choose ', h('strong', {}, 'Allow'), '. That lets this page talk to the studio on this device, and nothing else.'),
-    h('li', {}, 'First time on this device: download the tool from ', h('a', { href: 'https://github.com/TheBooleanJulian/thebooleanjulian-reels', target: '_blank', rel: 'noopener' }, 'GitHub'), ' and double-click ', h('span', { class: 'mono' }, 'polaroid-reel\\setup.bat'), ' once (Windows; installs Python, ffmpeg and the transcriber).'));
+    h('li', {}, 'First time on this device: download the tool from ', h('a', { href: 'https://github.com/TheBooleanJulian/accurova-rhenium', target: '_blank', rel: 'noopener' }, 'GitHub'), ' and double-click ', h('span', { class: 'mono' }, 'polaroid-reel\\setup.bat'), ' once (Windows; installs Python, ffmpeg and the transcriber).'));
   return h('section', { class: 'panel col', style: 'max-width:640px' },
     h('h2', { class: 'panel__title' }, 'Connect to the studio on this device'),
     h('span', { class: 'body-sm' }, 'This website is only the editor. Your footage, renders and transcription stay on the device you are using, run by the studio program.'),
@@ -2316,7 +2316,7 @@ $('#theme').addEventListener('click', () => {
   const cur = document.documentElement.dataset.theme || (matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
   const next = cur === 'dark' ? 'light' : 'dark';
   document.documentElement.dataset.theme = next;
-  try { localStorage.setItem('tbj-theme', next); } catch (e) {}       // raw string: the <head> script reads it before paint
+  try { localStorage.setItem('rhenium-theme', next); } catch (e) {}       // raw string: the <head> script reads it before paint
   setThemeButton();
 });
 (async function boot() {
@@ -2324,7 +2324,7 @@ $('#theme').addEventListener('click', () => {
   if (HOSTED) {
     await connectHelper();
     if (HELPER.version !== API_VERSION) flash('warning', HELPER.version < API_VERSION ? 'The studio on this device is older than the website' : 'This page is older than the studio on this device',
-      HELPER.version < API_VERSION ? 'Update the thebooleanjulian-reels folder (Drive or git pull), then close and reopen studio.bat.' : 'Reload the page (Ctrl+F5).');
+      HELPER.version < API_VERSION ? 'Update the accurova-rhenium folder (Drive or git pull), then close and reopen studio.bat.' : 'Reload the page (Ctrl+F5).');
     await loadAccount();
   }
   try { S.env = await api('/api/env'); } catch (e) {}
