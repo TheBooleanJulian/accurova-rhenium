@@ -1,4 +1,4 @@
-"""Builds web/dist: the files served at reels-editor.thebooleanjulian.dev (see wrangler.jsonc).
+"""Builds web/dist: the files served at rhenium.accurova.com (see wrangler.jsonc).
 
 Only the studio page, the fonts it uses and their licences go out. The page there is the interface only; it pairs
 with studio.py running on the visitor's own device, so no footage, project or render ever goes to the website.

@@ -6,7 +6,7 @@ Every project has a log in `projects/<name>/notes.md`; tick each step when it is
 ## 0. Setup (once per machine)
 `python3 doctor.py` -> fix any FAIL. `pip install faster-whisper` for talking-head transcription.
 
-Every step below can also be done in **TBJ Reels Studio** (`studio.bat`): same commands underneath, same files,
+Every step below can also be done in **Accurova Rhenium** (`studio.bat`): same commands underneath, same files,
 same approvals. The Notes tab of a project edits `notes.md`.
 
 ## 1. New project

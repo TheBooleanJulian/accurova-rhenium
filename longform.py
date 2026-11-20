@@ -30,7 +30,10 @@ import cards, subs
 
 ROOT = os.path.dirname(os.path.abspath(__file__))
 FONTS = os.path.join(ROOT, 'fonts')
-CACHE = os.environ.get('TBJ_REELS_CACHE') or os.path.join(os.path.expanduser('~'), '.tbj-reels', 'cache')
+CACHE = os.environ.get('RHENIUM_CACHE') or os.environ.get('TBJ_REELS_CACHE') or os.path.join(os.path.expanduser('~'), '.accurova-rhenium', 'cache')
+# Renamed from TBJ-reels: keep using the old cache folder until it is moved, so nothing is re-rendered.
+_OLD = os.path.join(os.path.expanduser('~'), '.tbj-reels', 'cache')
+if not os.environ.get('RHENIUM_CACHE') and not os.path.isdir(os.path.dirname(CACHE)) and os.path.isdir(_OLD): CACHE = _OLD
 FORMATS = ('interview', 'presentation')
 SIZES = {'9:16': (1080, 1920), '16:9': (1920, 1080), '1:1': (1080, 1080), '4:5': (1080, 1350)}
 SR = 48000

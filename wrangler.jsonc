@@ -1,12 +1,12 @@
 {
-  // https://reels-editor.thebooleanjulian.dev: the studio page (web/build.py copies it and its fonts into web/dist)
+  // https://rhenium.accurova.com: the studio page (web/build.py copies it and its fonts into web/dist)
   // plus web/worker: Google sign-in and the copies of projects kept in your account. Editing, footage and rendering
   // stay on each device, in studio.py.
   // Deploy from main: npx wrangler deploy   (runs the build first)
   // Secrets (npx wrangler secret put ...): GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, SESSION_SECRET. Until all three are
   // set the site works as before and simply shows no sign-in.
-  // Data: schema thebooleanjulian_reels (thebooleanjulian-db migration 20261112120000), Hyperdrive thebooleanjulian-reels-db.
-  "name": "tbj-reels-editor",
+  // Data: schema accurova_rhenium (thebooleanjulian-db migration 20261112120000), Hyperdrive accurova-rhenium-db.
+  "name": "accurova-rhenium",
   "account_id": "c580c4403524273d1bece674117472dd",
   "main": "web/worker/index.js",
   "compatibility_date": "2026-11-01",
@@ -18,8 +18,8 @@
     "binding": "ASSETS",
     "run_worker_first": ["/auth/*", "/cloud/*"]
   },
-  // After `apply.mjs` + `provision.mjs <supabase.env> thebooleanjulian_reels <out dir>` in thebooleanjulian-db:
-  // "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<thebooleanjulian-reels-db id from provision.mjs>" }],
-  "routes": [{ "pattern": "reels-editor.thebooleanjulian.dev", "custom_domain": true }],
+  // After `apply.mjs` + `provision.mjs <supabase.env> accurova_rhenium <out dir>` in thebooleanjulian-db:
+  // "hyperdrive": [{ "binding": "HYPERDRIVE", "id": "<accurova-rhenium-db id from provision.mjs>" }],
+  "routes": [{ "pattern": "rhenium.accurova.com", "custom_domain": true }],
   "observability": { "enabled": true }
 }

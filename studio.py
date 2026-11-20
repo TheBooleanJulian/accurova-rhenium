@@ -1,11 +1,11 @@
-"""TBJ Reels Studio: a local web UI for every tool in this folder (polaroid recaps, reel presets, interview and
+"""Accurova Rhenium: a local web UI for every tool in this folder (polaroid recaps, reel presets, interview and
 presentation edits). Python standard library only; the page is studio/index.html.
 
   python studio.py              # opens http://127.0.0.1:8765 in the browser
   studio.bat                    # same, using the tool environment that setup.bat creates
   python studio.py --port 9000 --no-browser
 
-The same page is also served at https://reels-editor.thebooleanjulian.dev (web/build.py + wrangler.jsonc). There it
+The same page is also served at https://rhenium.accurova.com (web/build.py + wrangler.jsonc). There it
 is only the interface: it finds this program on the device it is open on (127.0.0.1, ports 8765-8784), so the files,
 ffmpeg and transcription stay on that device. studio.bat opens the website; --local opens the page served from here.
 
@@ -22,13 +22,16 @@ ROOT = os.path.dirname(os.path.abspath(__file__))
 UI = os.path.join(ROOT, 'studio', 'index.html')
 PROJECTS = os.path.join(ROOT, 'projects')
 POLAROID = os.path.join(ROOT, 'polaroid-reel')
-CACHE = os.environ.get('TBJ_REELS_CACHE') or os.path.join(os.path.expanduser('~'), '.tbj-reels', 'cache')
+CACHE = os.environ.get('RHENIUM_CACHE') or os.environ.get('TBJ_REELS_CACHE') or os.path.join(os.path.expanduser('~'), '.accurova-rhenium', 'cache')
+# Renamed from TBJ-reels: keep using the old cache folder until it is moved, so nothing is re-rendered.
+_OLD = os.path.join(os.path.expanduser('~'), '.tbj-reels', 'cache')
+if not os.environ.get('RHENIUM_CACHE') and not os.path.isdir(os.path.dirname(CACHE)) and os.path.isdir(_OLD): CACHE = _OLD
 FONT_DIRS = (os.path.join(ROOT, 'fonts'), os.path.join(ROOT, 'fonts', 'ui'))
 PY = sys.executable
 TOKEN = secrets.token_urlsafe(24)
 API_VERSION = 2                      # bump when the page and this server must change together (the website checks it)
-WEB_URL = 'https://reels-editor.thebooleanjulian.dev/'
-WEB_ORIGINS = {WEB_URL.rstrip('/')} | {o.strip().rstrip('/') for o in os.environ.get('TBJ_REELS_WEB_ORIGINS', '').split(',')
+WEB_URL = 'https://rhenium.accurova.com/'
+WEB_ORIGINS = {WEB_URL.rstrip('/')} | {o.strip().rstrip('/') for o in os.environ.get('RHENIUM_WEB_ORIGINS', '').split(',')
                                        if o.strip()}   # extra origins only for testing a copy of the website
 NAME_RE = re.compile(r'[A-Za-z0-9][A-Za-z0-9._-]{0,79}')
 MAX_BODY = 20 * 1024 * 1024
@@ -208,7 +211,7 @@ def project_detail(name):
 # The website keeps a copy of each interview/presentation project's small files in your account (preset, transcript,
 # notes, and the name + size of each media file). Footage never leaves the device: when a project arrives on another
 # device, each media path is looked up by file name + size among the files this device has used before
-# (~/.tbj-reels/media_index.json), and anything still missing is shown so you can point at it once ("Find files").
+# (~/.accurova-rhenium/media_index.json), and anything still missing is shown so you can point at it once ("Find files").
 MEDIA_INDEX = os.path.join(os.path.dirname(CACHE), 'media_index.json')
 INDEX_LOCK = threading.Lock()
 SYNC_FILE = '.sync.json'                 # per project: {account email: {updated_at, hash}} as of the last sync here
@@ -580,7 +583,7 @@ class Server(http.server.ThreadingHTTPServer):
 
 
 class Handler(http.server.BaseHTTPRequestHandler):
-    server_version = 'TBJReelsStudio/1'
+    server_version = 'AccurovaRheniumStudio/1'
 
     def log_message(self, fmt, *args): pass
 
@@ -642,8 +645,8 @@ class Handler(http.server.BaseHTTPRequestHandler):
                     with open(p, 'rb') as fh: return self._send(200, fh.read(), 'font/ttf', {'Cache-Control': 'max-age=86400'})
             return self._err(404, 'no such font')
         if u.path == '/api/pair':         # the website, open on this device, asks for this launch's token
-            if not self._web(): return self._err(403, 'Only the TBJ Reels website can pair with the studio')
-            return self._send(200, {'app': 'tbj-reels', 'token': TOKEN, 'version': API_VERSION,
+            if not self._web(): return self._err(403, 'Only the Accurova Rhenium website can pair with the studio')
+            return self._send(200, {'app': 'accurova-rhenium', 'token': TOKEN, 'version': API_VERSION,
                                     'device': platform.node()[:60]})
         if not self._token_ok(q): return self._err(403, 'Missing or wrong token. Reload the page.')
         try:
@@ -808,7 +811,7 @@ class Handler(http.server.BaseHTTPRequestHandler):
 
 
 def main():
-    ap = argparse.ArgumentParser(description='TBJ Reels Studio')
+    ap = argparse.ArgumentParser(description='Accurova Rhenium')
     ap.add_argument('--port', type=int, default=8765)
     ap.add_argument('--no-browser', action='store_true')
     ap.add_argument('--local', action='store_true', help='open the page served by this program instead of the website')
@@ -823,7 +826,7 @@ def main():
             continue
     if not srv: sys.exit('No free port near %d' % a.port)
     url = f'http://127.0.0.1:{srv.server_address[1]}/'
-    print(f'TBJ Reels Studio is running on this device. Keep this window open (Ctrl+C to stop).\n'
+    print(f'Accurova Rhenium is running on this device. Keep this window open (Ctrl+C to stop).\n'
           f'  Website:   {WEB_URL}\n  Offline:   {url}', flush=True)
     if not a.no_browser: threading.Timer(0.6, lambda: webbrowser.open(url if a.local else WEB_URL)).start()
     try: srv.serve_forever()

@@ -45,7 +45,7 @@ through the full approval workflow before relying on it for paid work.
   players and TVs show wrong. Same compatibility goal as polaroid-reel.
 - **Look**: `style/signature.json -> longform`, calmer than the reel HUD (no glow, one magenta rule per graphic),
   Chakra Petch for names/cards/word captions, IBM Plex Sans for subtitles and roles.
-- **Big temporary files** (full-length audio, proxies) go to `~/.tbj-reels/cache/<project>/`, never into the Drive folder.
+- **Big temporary files** (full-length audio, proxies) go to `~/.accurova-rhenium/cache/<project>/`, never into the Drive folder.
 - **No new dependencies.** numpy and Pillow were already required; faster-whisper was already the transcription backend.
 
 ## The studio (UI)
@@ -100,7 +100,7 @@ Found on the first real talk (13.6 min, phone at the back of a hall, voice throu
   On the talk: +4.4 dB of 2-5 kHz relative to the whole. No compressor: measured, it raised the room between words by
   2-4 dB, and the final loudness pass evens the level anyway.
 - The clean-up runs on the whole recording before it is cut (no pumping at cuts) and is cached in
-  `~/.tbj-reels/cache/<project>/voice_<hash>.wav` (one per project; 13.6 min took a few seconds).
+  `~/.accurova-rhenium/cache/<project>/voice_<hash>.wav` (one per project; 13.6 min took a few seconds).
 - **Listen** (studio) renders 10 s at the playhead twice, original and cleaned, both at -20 dBFS RMS so loudness
   doesn't decide which sounds better. Nothing in the clean-up was judged by ear during development; Listen is how to judge.
 - **Video denoise** (`grade.denoise`, 0-1, per clip or project): `hqdn3d` at source size before rotate/scale; 1 = 1.5x
@@ -108,17 +108,17 @@ Found on the first real talk (13.6 min, phone at the back of a hall, voice throu
   Not in the live preview (Stills show it).
 
 ## The website (added 2026-11-12)
-Julian wanted the editor at `reels-editor.thebooleanjulian.dev` with **the browser as the front end only**: files stay
+Julian wanted the editor at `rhenium.accurova.com` with **the browser as the front end only**: files stay
 local (PC on the PC, laptop on the laptop, a client's device on that device), each browser its own session, and later
 a Google login to see the same projects on every device.
 
 - **Chosen: a local helper.** The existing engine (`studio.py`) runs on each device; the website serves the same
-  `studio/index.html` as static files (Worker `tbj-reels-editor`, assets only). The page sees it isn't on 127.0.0.1,
+  `studio/index.html` as static files (Worker `accurova-rhenium`, assets only). The page sees it isn't on 127.0.0.1,
   probes `http://127.0.0.1:8765-8784/api/pair` (last port first) and uses that origin for every API and media URL.
   Rejected for now: the whole engine in the browser (ffmpeg.wasm, Whisper on WebGPU): a second engine to keep in step,
   several times slower, trouble with files over ~2 GB. Revisit only if clients really need zero install.
 - **Security**: unchanged for the local page. The studio adds CORS for exactly one origin
-  (`WEB_ORIGINS`; `TBJ_REELS_WEB_ORIGINS` adds more, for testing only). `/api/pair` returns the launch token only when
+  (`WEB_ORIGINS`; `RHENIUM_WEB_ORIGINS` adds more, for testing only). `/api/pair` returns the launch token only when
   the request's `Origin` is the website: browsers set `Origin` and pages can't, so no other site can pair; local
   programs could, but they could read the files anyway. The Host check still blocks DNS rebinding. Preflights answer
   `Access-Control-Allow-Private-Network` (older Chrome); current Chrome/Edge show a one-time "apps on this device"
@@ -131,13 +131,13 @@ a Google login to see the same projects on every device.
   for `/auth/*` and `/cloud/*`; everything else is the static page. Sign-in is Google's code flow with identity scopes
   only (`openid email profile`), the same sealed-cookie scheme as rothko-cal; no Google token is kept, and the database
   stores Google's account id (`sub`), not the email. Each interview/presentation project you upload is kept as one
-  bundle (preset text, transcript, notes, and each media file's name + size) in schema `thebooleanjulian_reels`
+  bundle (preset text, transcript, notes, and each media file's name + size) in schema `accurova_rhenium`
   (thebooleanjulian-db migration `20261112120000`), stored as text so the Worker never parses it (Free plan CPU).
   - **Sync rule**: each device records, per project and account, the account copy's `updated_at` and a hash of its own
     files at the last sync (`projects/<name>/.sync.json`). Changed here only: uploaded 4 s after a save. Changed in the
     account only: downloaded when the project opens. Changed in both: nothing is overwritten; Projects offers "Keep
     this device's" / "Use the account's". The server enforces it too (`base` must match, else 409).
-  - **Footage on the other device**: media paths are looked up by file name + size in `~/.tbj-reels/media_index.json`
+  - **Footage on the other device**: media paths are looked up by file name + size in `~/.accurova-rhenium/media_index.json`
     (every file a project on this device has used); same name, different size is not trusted (cameras reuse C0001).
     Still missing: the editor shows "Find files"; pointing at one also fixes the others in that folder.
   - Downloading over an existing project keeps the previous preset in `work/backup/`. Reel presets don't sync.
